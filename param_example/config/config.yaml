@@ -1,0 +1,12 @@
+# example_params.yaml
+python_param_node:
+  ros__parameters:
+    param1: "python_param_node: Hello, world!"
+    param2: 42
+    param3: true
+
+cpp_param_node:
+  ros__parameters:
+    param1: "cpp_param_node: Hello, world!"
+    param2: 42
+    param3: true
