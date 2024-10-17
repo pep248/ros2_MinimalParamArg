@@ -12,5 +12,5 @@ void MyCppParamClass::start()
 {
     RCLCPP_INFO(this->get_logger(), "param1: %s", param1_.c_str());
     RCLCPP_INFO(this->get_logger(), "param2: %d", param2_);
-    RCLCPP_INFO(this->get_logger(), "param3: %d", param3_);
+    RCLCPP_INFO(this->get_logger(), "param3: %s", param3_ ? "true" : "false");
 }

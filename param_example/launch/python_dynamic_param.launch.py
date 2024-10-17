@@ -15,8 +15,8 @@ def generate_launch_description():
         ),
         Node(
             package='param_example',
-            executable='cpp_param_node',
-            name='cpp_param_node',
+            executable='python_dynamic_param_node.py',
+            name='python_param_node',
             parameters=[param_file_path]
         )
     ])

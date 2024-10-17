@@ -262,9 +262,121 @@ You can try the python example to load simple parameters using the following com
 ros2 launch param_example python_complex_param.launch.py
 ```
 
+## Dynamic Params
+
+ROS2 offers the possibility to load parameters dynamically. This means that we can load parameters while the node is running, without having to restart it.
+
+### Python
+
+We need to declare a param server as well as a callback inside a Node:
+
+```python
+from rcl_interfaces.msg import SetParametersResult
+
+class MyPythonDynamicParamClass(Node):
+    def __init__(self, node_name:str):
+        super().__init__(node_name)
+        self.param1 = self.declare_parameter('param1', 'default_param1').get_parameter_value().string_value
+        self.param2 = self.declare_parameter('param2', 0).get_parameter_value().integer_value
+        self.param3 = self.declare_parameter('param3', False).get_parameter_value().bool_value
+        self.add_on_set_parameters_callback(self.param_update_callback)
+    
+    
+    # ros2 param set /python_param_node param1 "\"python_param_node: This is a modified param\""
+    # ros2 param set /python_param_node param2 34
+    # ros2 param set /python_param_node param3 false
+    def param_update_callback(self, parameters):
+        result = SetParametersResult(successful=True)
+
+        for param in parameters:
+            if param.name == 'param1':
+                if param.type_ != param.Type.STRING:
+                    result.successful = False
+                    result.reason = "param1 must be a string"
+                    break
+                else:
+                    self.param1 = param.value
+            elif param.name == 'param2':
+                if param.type_ != param.Type.INTEGER:
+                    result.successful = False
+                    result.reason = "param2 must be an integer"
+                    break
+                else:
+                    self.param2 = param.value
+            elif param.name == 'param3':
+                if param.type_ != param.Type.BOOL:
+                    result.successful = False
+                    result.reason = "param3 must be a boolean"
+                    break
+                else:
+                    self.param3 = param.value
+            else:
+                result.successful = False
+                result.reason = f"{param.name} is not a parameter of this node"
+                break
+
+        return result
+```
+
+
+
 ## Pass Arguments
 
+In case that one of the parameters that we want to load is an argument, we can modify it as we launch the launch file.
 
+To define an argument, we need to use the `DeclareLaunchArgument` action. As such, this arguments can be modified when launching the launch file.
+
+Here is an example of a launch file that declares a arguments:
+
+```python
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+from launch_ros.parameter_descriptions import ParameterValue
+
+def generate_launch_description():
+    return LaunchDescription([
+        DeclareLaunchArgument(
+            'param1',
+            default_value="cpp_arg_node: Hello, world!",  # Assuming "default_param1" is a valid default
+            description='Parameter 1'
+        ),
+        DeclareLaunchArgument(
+            'param2',
+            default_value="42",
+            description='Parameter 2'
+        ),
+        DeclareLaunchArgument(
+            'param3',
+            default_value="true",
+            description='Parameter 3'
+        ),
+        
+        Node(
+            package='param_example',
+            executable='cpp_param_node',
+            name='cpp_arg_node',
+            parameters=[{
+                'param1': ParameterValue(LaunchConfiguration('param1'), value_type=str),
+                'param2': ParameterValue(LaunchConfiguration('param2'), value_type=int),
+                'param3': ParameterValue(LaunchConfiguration('param3'), value_type=bool)
+            }]
+        )
+    ])
+```
+
+To display the arguments that we declared in a launch file, we can use the following command:
+
+```sh
+ros2 launch param_example python_arg.launch.py --show-arguments
+```
+
+We can simply load new arguments through the terminal, using the following command:
+
+```sh
+ros2 launch param_example python_arg.launch.py param1:=test_message
+```
 
 ## Author
 * Josep Rueda Collell: rueda_999@hotmail.com

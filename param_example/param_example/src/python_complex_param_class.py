@@ -31,6 +31,7 @@ class MyPythonComplexParamClass(Node):
         return pose_stamped
 
     def start(self):
-        self.get_logger().info(f"Header: {self.pose_stamped.header}")
-        self.get_logger().info(f"Pose:\n  Position: ({self.pose_stamped.pose.position.x}, {self.pose_stamped.pose.position.y}, {self.pose_stamped.pose.position.z})")
-        self.get_logger().info(f"  Orientation: ({self.pose_stamped.pose.orientation.x}, {self.pose_stamped.pose.orientation.y}, {self.pose_stamped.pose.orientation.z}, {self.pose_stamped.pose.orientation.w})")
+        self.get_logger().info(f"\nPoseStamped:\n"
+                            f"  Header: {self.pose_stamped.header}\n"
+                            f"  Position: {self.pose_stamped.pose.position}\n"
+                            f"  Orientation: {self.pose_stamped.pose.orientation}")

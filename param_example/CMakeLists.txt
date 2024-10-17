@@ -15,6 +15,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
+
 # CPP
 # Add the executable
 ament_auto_add_executable(cpp_param_node 
@@ -25,6 +26,7 @@ ament_auto_add_executable(cpp_param_node
 install(TARGETS cpp_param_node
   DESTINATION lib/${PROJECT_NAME}
 )
+
 # Add the executable
 ament_auto_add_executable(cpp_complex_param_node 
 src/cpp_complex_param_node.cpp
@@ -35,6 +37,17 @@ install(TARGETS cpp_complex_param_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
+# Add the executable
+ament_auto_add_executable(cpp_dynamic_param_node 
+  src/cpp_dynamic_param_node.cpp
+  src/classes/cpp_dynamic_param_class.cpp # dependencies
+  )
+# Install the executable
+install(TARGETS cpp_dynamic_param_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+
 # PYTHON
 # Install Python modules
 ament_python_install_package(${PROJECT_NAME})
@@ -42,6 +55,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   scripts/python_param_node.py
   scripts/python_complex_param_node.py
+  scripts/python_dynamic_param_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

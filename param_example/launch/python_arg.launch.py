@@ -2,13 +2,15 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
-from launch_ros.substitutions import FindPackageShare
+from launch_ros.parameter_descriptions import ParameterValue
+
+
 
 def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             'param1',
-            default_value="python_param_node: Hello, world!",  # Assuming "default_param1" is a valid default
+            default_value="python_arg_node: Hello, world!",  # Assuming "default_param1" is a valid default
             description='Parameter 1'
         ),
         DeclareLaunchArgument(
@@ -25,11 +27,11 @@ def generate_launch_description():
         Node(
             package='param_example',
             executable='python_param_node.py',
-            name='python_param_node',
-            parameters=[
-                {'param1': LaunchConfiguration('param1')},
-                {'param2': LaunchConfiguration('param2')},
-                {'param3': LaunchConfiguration('param3')}
-            ]
+            name='python_arg_node',
+            parameters=[{
+                'param1': ParameterValue(LaunchConfiguration('param1'), value_type=str),
+                'param2': ParameterValue(LaunchConfiguration('param2'), value_type=int),
+                'param3': ParameterValue(LaunchConfiguration('param3'), value_type=bool)
+            }]
         )
     ])
