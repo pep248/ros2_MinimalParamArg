@@ -79,7 +79,7 @@ It is very important to point out that the `node_name` has to be the same as the
 
 It is also very important to point out that afer the `node_name` there has to be a `ros__parameters` tag, which is necessary to load the parameters.
 
-Here we will provide some examples on how to then use said parameters in the launched nodes:
+Here we will provide some examples on how to use said parameters in the launched nodes:
 
 
 ### Python
@@ -281,10 +281,6 @@ class MyPythonDynamicParamClass(Node):
         self.param3 = self.declare_parameter('param3', False).get_parameter_value().bool_value
         self.add_on_set_parameters_callback(self.param_update_callback)
     
-    
-    # ros2 param set /python_param_node param1 "\"python_param_node: This is a modified param\""
-    # ros2 param set /python_param_node param2 34
-    # ros2 param set /python_param_node param3 false
     def param_update_callback(self, parameters):
         result = SetParametersResult(successful=True)
 
@@ -318,7 +314,99 @@ class MyPythonDynamicParamClass(Node):
         return result
 ```
 
+We can manually change each parameter by using the following terminal commands:
 
+```sh
+    ros2 param set /python_param_node param1 "\"python_param_node: This is a modified param\"" # complex strings require this weird syntax
+    ros2 param set /python_param_node param2 34
+    ros2 param set /python_param_node param3 false
+```
+
+### C++
+
+We need to declare a param server as well as a callback inside a Node:
+
+```cpp
+
+MyCppDynamicParamClass::MyCppDynamicParamClass(const std::string & node_name) : Node(node_name)
+{
+    param1_ = this->declare_parameter<std::string>("param1", "default_param1");
+    param2_ = this->declare_parameter<int>("param2", 0);
+    param3_ = this->declare_parameter<bool>("param3", false);
+
+    param_cb_ = this->add_on_set_parameters_callback(std::bind(&MyCppDynamicParamClass::ParamUpdateCallback, this, std::placeholders::_1));
+}
+
+rcl_interfaces::msg::SetParametersResult MyCppDynamicParamClass::ParamUpdateCallback(const std::vector<rclcpp::Parameter> & parameters)
+{
+    rcl_interfaces::msg::SetParametersResult result;
+    result.successful = true;
+
+    for (const rclcpp::Parameter & param : parameters)
+    {
+        if (param.get_name() == "param1")
+        {
+            if (param.get_type() != rclcpp::ParameterType::PARAMETER_STRING)
+            {
+                result.successful = false;
+                result.reason = "my_param_name must be a string";
+                break;
+            }
+            else
+            {
+                this->param1_ = param.as_string();
+            }
+        }
+       
+        else if (param.get_name() == "param2")
+        {
+            if (param.get_type() != rclcpp::ParameterType::PARAMETER_INTEGER)
+            {
+                result.successful = false;
+                result.reason = "my_param_name must be an integer";
+                break;
+            }
+            else
+            {
+                this->param2_ = param.as_int();
+            }
+        }
+        
+        else if (param.get_name() == "param3")
+        {
+            if (param.get_type() != rclcpp::ParameterType::PARAMETER_BOOL)
+            {
+                result.successful = false;
+                result.reason = "my_param_name must be a boolean";
+                break;
+            }
+            else
+            {
+                this->param3_ = param.as_bool();
+            }
+        }
+        
+        else
+        {
+            result.successful = false;
+            result.reason = "my_param_name is not a parameter of this node";
+            break;
+        }
+    }
+
+
+    return result;
+}
+
+```
+
+Similarly to the Python code, we can manually change each parameter by using the following terminal commands:
+
+```sh
+    ros2 param set /cpp_param_node param1 "\"cpp_param_node: This is a modified param\""
+    ros2 param set /cpp_param_node param2 34
+    ros2 param set /cpp_param_node param3 false
+```
 
 ## Pass Arguments
 
