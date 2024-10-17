@@ -410,9 +410,11 @@ Similarly to the Python code, we can manually change each parameter by using the
 
 ## Pass Arguments
 
-In case that one of the parameters that we want to load is an argument, we can modify it as we launch the launch file.
+Arguments in ROS2, can be defined as parameters that we pass through the command line. This, will replace the parameters that we have defined in the node or the launch file, but will not replace the parameters that we have loaded through a YAML file.
 
-To define an argument, we need to use the `DeclareLaunchArgument` action. As such, this arguments can be modified when launching the launch file.
+In case that we want to give flexibility to the user, anc modify a parameter by replacing it with a command argument, we can do as follows, by modifying the launch file.
+
+To define an argument, we need to use the `DeclareLaunchArgument` action.
 
 Here is an example of a launch file that declares a arguments:
 
@@ -457,13 +459,19 @@ def generate_launch_description():
 To display the arguments that we declared in a launch file, we can use the following command:
 
 ```sh
+# python
 ros2 launch param_example python_arg.launch.py --show-arguments
+# cpp
+ros2 launch param_example cpp_arg.launch.py --show-arguments
 ```
 
-We can simply load new arguments through the terminal, using the following command:
+We can simply replace parameters with new arguments through the terminal, using the following example command:
 
 ```sh
+# python
 ros2 launch param_example python_arg.launch.py param1:=test_message
+# cpp
+ros2 launch param_example cpp_arg.launch.py param1:=test_message
 ```
 
 ## Author
