@@ -1,0 +1,7 @@
+config_1_params:
+  param1:
+    type: string
+    default_value: "Hello from config2"
+  param2:
+    type: double
+    default_value: 0.64

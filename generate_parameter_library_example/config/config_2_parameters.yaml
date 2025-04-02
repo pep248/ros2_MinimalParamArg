@@ -1,0 +1,15 @@
+config_2_params:
+  param_field_1:
+    param1:
+      type: string
+      default_value: "Hello from config1"
+    param2:
+      type: double
+      default_value: 0.12
+  param_field_2:
+    paramA:
+      type: int
+      default_value: 42
+    paramB:
+      type: bool
+      default_value: true
