@@ -474,6 +474,138 @@ ros2 launch param_example python_arg.launch.py param1:=test_message
 ros2 launch param_example cpp_arg.launch.py param1:=test_message
 ```
 
+## Generate Params Library
+
+The `generate_parameter_library` is a powerful tool that allows you to define and load parameters in a structured and efficient way. This library simplifies the process of managing parameters for ROS 2 nodes by generating code from YAML configuration files.
+
+For more details, you can visit the official repository: [generate_parameter_library](https://github.com/PickNikRobotics/generate_parameter_library).
+
+### C++
+
+To use the `generate_parameter_library` in a C++ node, you need to include the generated parameter headers and use the `ParamListener` and `Params` classes to load and access the parameters.
+
+#### Example
+
+Here is an example of how to load and print parameters using the library in C++:
+
+```cpp
+#include <generate_parameter_library_example/cpp_generate_parameter_library_class.hpp>
+
+MyCppGenerateParameterLibraryClass::MyCppGenerateParameterLibraryClass(const std::string & node_name)
+: Node(node_name)
+{
+    config1_params_listener_ = std::make_shared<config_1_params::ParamListener>(this->get_node_parameters_interface());
+    config1_params_ = std::make_shared<config_1_params::Params>(config1_params_listener_->get_params());
+
+    config2_params_listener_ = std::make_shared<config_2_params::ParamListener>(this->get_node_parameters_interface());
+    config2_params_ = std::make_shared<config_2_params::Params>(config2_params_listener_->get_params());
+}
+
+void MyCppGenerateParameterLibraryClass::start()
+{
+    // Print all parameters from config_1_params
+    RCLCPP_INFO(this->get_logger(), "Config 1 Parameters:");
+    RCLCPP_INFO(this->get_logger(), "  param1: %s", config1_params_->param1.c_str());
+    RCLCPP_INFO(this->get_logger(), "  param2: %f", config1_params_->param2);
+
+    // Print all parameters from config_2_params
+    RCLCPP_INFO(this->get_logger(), "Config 2 Parameters:");
+    RCLCPP_INFO(this->get_logger(), "  param_field_1.param1: %s", config2_params_->param_field_1.param1.c_str());
+    RCLCPP_INFO(this->get_logger(), "  param_field_1.param2: %f", config2_params_->param_field_1.param2);
+    RCLCPP_INFO(this->get_logger(), "  param_field_2.paramA: %ld", config2_params_->param_field_2.paramA);
+    RCLCPP_INFO(this->get_logger(), "  param_field_2.paramB: %s", config2_params_->param_field_2.paramB ? "true" : "false");
+}
+```
+
+In this example, the parameters are organized in a tree structure, as defined in the YAML files. For instance, `config_2_params` contains nested fields like `param_field_1.param1` and `param_field_2.paramA`.
+
+To run the C++ example, use the following command:
+
+```sh
+ros2 run generate_parameter_library_example cpp_generate_parameter_library_node
+```
+
+### Python
+
+In Python, the `generate_parameter_library` can be used by importing the generated parameter modules and using the `ParamListener` and `Params` classes to load and access the parameters. Similar to C++, the library supports organizing parameters in a tree structure.
+
+#### Example
+
+Here is an example of how to load and print parameters using the library in Python:
+
+```python
+#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+from generate_parameter_library_example.python_config_1_parameters import config_1_params
+from generate_parameter_library_example.python_config_2_parameters import config_2_params
+
+class MyPythonGenerateParamLibraryClass(Node):
+    def __init__(self, node_name: str):
+        super().__init__(node_name)
+        self.config1_params_listener = config_1_params.ParamListener(self)
+        self.config1_params = self.config1_params_listener.get_params()
+        self.config2_params_listener = config_2_params.ParamListener(self)
+        self.config2_params = self.config2_params_listener.get_params()
+
+    def start(self):
+        self.get_logger().info("Config 1 Parameters:")
+        self.get_logger().info(f"  param1: {self.config1_params.param1}")
+        self.get_logger().info(f"  param2: {self.config1_params.param2}")
+        self.get_logger().info("Config 2 Parameters:")
+        self.get_logger().info(f"  param_field_1.param1: {self.config2_params.param_field_1.param1}")
+        self.get_logger().info(f"  param_field_1.param2: {self.config2_params.param_field_1.param2}")
+        self.get_logger().info(f"  param_field_2.paramA: {self.config2_params.param_field_2.paramA}")
+        self.get_logger().info(f"  param_field_2.paramB: {self.config2_params.param_field_2.paramB}")
+```
+
+In this example, the parameters are also organized in a tree structure, as defined in the YAML files. For instance, `config_2_params` contains nested fields like `param_field_1.param1` and `param_field_2.paramA`.
+
+To run the Python example, use the following command:
+
+```sh
+ros2 run generate_parameter_library_example python_generate_parameter_library_node.py
+```
+
+### Organizing Parameters in a Tree Structure
+
+One of the key features of the `generate_parameter_library` is the ability to organize parameters in a tree structure. This is particularly useful for managing complex configurations. For example, in the provided YAML files:
+
+#### `config_1_parameters.yaml`
+
+```yaml
+config_1_params:
+  param1:
+    type: string
+    default_value: "Hello from config2"
+  param2:
+    type: double
+    default_value: 0.64
+```
+
+#### `config_2_parameters.yaml`
+
+```yaml
+config_2_params:
+  param_field_1:
+    param1:
+      type: string
+      default_value: "Hello from config1"
+    param2:
+      type: double
+      default_value: 0.12
+  param_field_2:
+    paramA:
+      type: int
+      default_value: 42
+    paramB:
+      type: bool
+      default_value: true
+```
+
+In these examples, `config_2_params` is organized into two subfields: `param_field_1` and `param_field_2`. This structure allows you to logically group related parameters, making it easier to manage and access them in your code.
+
+
 ## Author
 * Josep Rueda Collell: rueda_999@hotmail.com
 
